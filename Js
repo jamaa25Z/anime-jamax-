@@ -1,0 +1,30 @@
+document.getElementById("searchInput").addEventListener("input", async function () {
+  const query = this.value.trim();
+  const resultsContainer = document.getElementById("results");
+  resultsContainer.innerHTML = "";
+
+  if (query.length < 3) return;
+
+  try {
+    const res = await fetch(`https://api.consumet.org/meta/anilist/${query}`);
+    const data = await res.json();
+
+    if (data.results && data.results.length > 0) {
+      data.results.forEach(anime => {
+        const card = document.createElement("div");
+        card.className = "anime-card";
+        card.innerHTML = `
+          <img src="${anime.image}" alt="${anime.title.romaji}" width="150" />
+          <h3>${anime.title.romaji}</h3>
+          <p>${anime.description?.substring(0, 80) || 'Pas de description'}...</p>
+        `;
+        resultsContainer.appendChild(card);
+      });
+    } else {
+      resultsContainer.innerHTML = "<p>Aucun résultat trouvé.</p>";
+    }
+  } catch (err) {
+    console.error(err);
+    resultsContainer.innerHTML = "<p>Erreur lors de la recherche.</p>";
+  }
+});
